@@ -27,4 +27,11 @@ public class GlobaExceptionHandler {
         }
         return R.error("未知错误");
     }
+    /*自定义异常处理*/
+    @ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException ex){
+        log.info(ex.getMessage());
+
+        return R.error(ex.getMessage());
+    }
 }

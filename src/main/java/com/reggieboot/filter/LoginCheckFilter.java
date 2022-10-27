@@ -30,7 +30,11 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/employee/page",
-                "/front/**"
+                "/front/**",
+                "/backend/**",
+                "/common/**",
+                "/user/sendMsg",
+                "/user/login",
         };
         log.info("拦截到请求"+requestURI);
 
@@ -44,7 +48,7 @@ public class LoginCheckFilter implements Filter {
         }
         /*判断是否已经登录*/
         /*已登录*/
-        if (request.getSession().getAttribute("employee") != " "){
+        if (request.getSession().getAttribute("employee") != null){
             log.info("用户已经登陆"+request.getSession().getAttribute("employee"));
             Long empId = (Long) request.getSession().getAttribute("employee");
             BaseContext.setCurrent(empId);
@@ -54,11 +58,24 @@ public class LoginCheckFilter implements Filter {
             filterChain.doFilter(request,response);
             return;
         }
+        /*判断user是否登录*/
+        if (request.getSession().getAttribute("user") != null){
+            log.info("用户已经登陆"+request.getSession().getAttribute("user"));
+            Long userId = (Long) request.getSession().getAttribute("user");
+            BaseContext.setCurrent(userId);
+            /*    long id = Thread.currentThread().getId();
+            log.info("线程id"+id);
+*/
+            filterChain.doFilter(request,response);
+            return;
+        }
         /*未登录返回，通过输出流的方式向客户端响应*/
         log.info("用户未登录");
         response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
+        return;
 
     }
+
     public boolean check(String[] urls,String requestURI){
         for (String url : urls){
             boolean match = PATH_MATCHER.match(url,requestURI);
